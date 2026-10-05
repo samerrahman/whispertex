@@ -78,7 +78,7 @@ zip -r -q -y "WhisperTeX-macos-arm64.zip" "WhisperTeX.app"
 echo "💿 Preparing DMG staging folder with Applications shortcut..."
 DMG_STAGING="$DIR/dist/dmg_staging"
 mkdir -p "$DMG_STAGING"
-cp -R "$APP_DIR" "$DMG_STAGING/"
+cp -a "$APP_DIR" "$DMG_STAGING/"
 ln -s /Applications "$DMG_STAGING/Applications"
 
 cat <<EOF > "$DMG_STAGING/How to Install.txt"
