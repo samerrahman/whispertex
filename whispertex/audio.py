@@ -22,16 +22,7 @@ class AudioRecorder:
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f:
             self.temp_file = f.name
 
-        if sys.platform == "darwin" and shutil.which("afrecord"):
-            # macOS native audio recording: 16kHz mono WAV
-            cmd = [
-                "afrecord",
-                "-f", "WAVE",
-                "-c", "1",
-                "-r", str(self.sample_rate),
-                self.temp_file
-            ]
-        elif shutil.which("ffmpeg"):
+        if shutil.which("ffmpeg"):
             # ffmpeg fallback
             if sys.platform == "darwin":
                 cmd = ["ffmpeg", "-y", "-f", "avfoundation", "-i", ":0", "-ar", str(self.sample_rate), "-ac", "1", self.temp_file]
@@ -39,16 +30,27 @@ class AudioRecorder:
                 cmd = ["ffmpeg", "-y", "-f", "pulse", "-i", "default", "-ar", str(self.sample_rate), "-ac", "1", self.temp_file]
             else:
                 cmd = ["ffmpeg", "-y", "-f", "dshow", "-i", "audio=default", "-ar", str(self.sample_rate), "-ac", "1", self.temp_file]
-        elif shutil.which("arecord"):
-            # Linux ALSA fallback
-            cmd = ["arecord", "-f", "cd", "-t", "wav", "-r", str(self.sample_rate), "-c", "1", self.temp_file]
         elif shutil.which("rec"):
             # SoX fallback
             cmd = ["rec", "-q", "-c", "1", "-r", str(self.sample_rate), self.temp_file]
+        elif shutil.which("arecord"):
+            # Linux ALSA fallback
+            cmd = ["arecord", "-f", "cd", "-t", "wav", "-r", str(self.sample_rate), "-c", "1", self.temp_file]
+        elif sys.platform == "darwin" and shutil.which("swift"):
+            # Native macOS recording via AVFoundation inline swift
+            swift_code = (
+                f'import Foundation, AVFoundation\n'
+                f'let u = URL(fileURLWithPath: "{self.temp_file}")\n'
+                f'let s: [String: Any] = [AVFormatIDKey: Int(kAudioFormatLinearPCM), AVSampleRateKey: {self.sample_rate}.0, AVNumberOfChannelsKey: 1, AVLinearPCMBitDepthKey: 16, AVLinearPCMIsBigEndianKey: false, AVLinearPCMIsFloatKey: false]\n'
+                f'let r = try AVAudioRecorder(url: u, settings: s)\n'
+                f'r.prepareToRecord()\n'
+                f'r.record()\n'
+                f'dispatchMain()\n'
+            )
+            cmd = ["swift", "-e", swift_code]
         else:
             raise RuntimeError(
-                "No audio recording tool found. On macOS, `afrecord` is built-in. "
-                "On other platforms, please install `ffmpeg` or `sox`."
+                "No audio recording tool found. Please install `ffmpeg` or `sox` (e.g. `brew install ffmpeg`)."
             )
 
         self.process = subprocess.Popen(

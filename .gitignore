@@ -20,9 +20,9 @@ env/
 .vscode/
 .idea/
 *.swp
-*.swo
 .DS_Store
 AppIcon.iconset/
+AppIcon.icns
 
 # User configuration & cache
 .whispertex/
