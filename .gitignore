@@ -22,6 +22,7 @@ env/
 *.swp
 *.swo
 .DS_Store
+AppIcon.iconset/
 
 # User configuration & cache
 .whispertex/

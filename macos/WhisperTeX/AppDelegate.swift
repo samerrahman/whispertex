@@ -33,6 +33,36 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
         HotkeyManager.shared.registerHotkey()
+
+        // Prompt to move to Applications if launched from DMG
+        checkAndPromptMoveToApplications()
+    }
+
+    private func checkAndPromptMoveToApplications() {
+        let bundlePath = Bundle.main.bundlePath
+        if bundlePath.hasPrefix("/Volumes/") {
+            let alert = NSAlert()
+            alert.messageText = "Move WhisperTeX to Applications?"
+            alert.informativeText = "WhisperTeX was opened from a disk image. Would you like to install it in your Applications folder?"
+            alert.addButton(withTitle: "Move to Applications")
+            alert.addButton(withTitle: "Run From Here")
+            alert.alertStyle = .informational
+
+            if alert.runModal() == .alertFirstButtonReturn {
+                let dest = "/Applications/WhisperTeX.app"
+                try? FileManager.default.removeItem(atPath: dest)
+                do {
+                    try FileManager.default.copyItem(atPath: bundlePath, toPath: dest)
+                    let p = Process()
+                    p.executableURL = URL(fileURLWithPath: "/usr/bin/open")
+                    p.arguments = [dest]
+                    try p.run()
+                    NSApplication.shared.terminate(nil)
+                } catch {
+                    print("Failed to copy to /Applications: \(error)")
+                }
+            }
+        }
     }
 
     @objc func togglePopover(_ sender: AnyObject?) {
