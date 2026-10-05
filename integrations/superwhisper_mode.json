@@ -1,0 +1,8 @@
+{
+  "modeName": "Spoken LaTeX",
+  "whisperModel": "whisper-large-v3",
+  "llmProvider": "groq",
+  "llmModel": "llama-3.3-70b-versatile",
+  "systemPrompt": "Convert the following spoken description of mathematical expressions into clean, compilable LaTeX. Output only the LaTeX equation enclosed in $$ or $. Never output explanations, polite preamble, or markdown backticks.",
+  "outputBehavior": "replaceSelection"
+}

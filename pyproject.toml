@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "whispertex"
+version = "0.1.0"
+description = "Dictate standard mathematical English and compile to precision LaTeX using Whisper & LLMs"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [
+    { name = "Samer Rahman" }
+]
+keywords = [
+    "latex",
+    "math",
+    "speech-to-latex",
+    "whisper",
+    "llm",
+    "overleaf",
+    "dictation",
+    "groq",
+    "openai",
+    "gemini"
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Text Processing :: Markup :: LaTeX"
+]
+dependencies = [
+    "requests>=2.28.0",
+]
+
+[project.optional-dependencies]
+hotkey = [
+    "pynput>=1.7.6",
+]
+dev = [
+    "pytest>=7.0.0",
+]
+
+[project.scripts]
+whispertex = "whispertex.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["whispertex*"]
