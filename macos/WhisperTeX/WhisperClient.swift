@@ -3,6 +3,27 @@ import Foundation
 class WhisperClient {
     static let shared = WhisperClient()
 
+    func validateKey(provider: LLMProvider, apiKey: String) async throws -> Bool {
+        guard !apiKey.isEmpty else { return false }
+        let endpoint: URL
+        if provider == .groq {
+            endpoint = URL(string: "https://api.groq.com/openai/v1/models")!
+        } else if provider == .openai {
+            endpoint = URL(string: "https://api.openai.com/v1/models")!
+        } else {
+            return true
+        }
+
+        var request = URLRequest(url: endpoint)
+        request.httpMethod = "GET"
+        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+        request.timeoutInterval = 7.0
+
+        let (_, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse else { return false }
+        return httpResponse.statusCode == 200
+    }
+
     func transcribe(fileURL: URL, provider: LLMProvider, apiKey: String) async throws -> String {
         let endpoint: URL
         let model: String
@@ -55,7 +76,7 @@ class WhisperClient {
 
         let (data, response) = try await URLSession.shared.data(for: request)
         guard let httpResponse = response as? HTTPURLResponse else {
-            throw NSError(domain: "WhisperTeX", code: 500, userInfo: [NSLocalizedDescriptionKey: "Invalid network response"])
+            throw NSError(domain: "WhisperTeX", code: 500, userInfo: [NSLocalizedDescriptionKey: "Invalid network response from transcription service"])
         }
 
         guard httpResponse.statusCode == 200 else {

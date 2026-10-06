@@ -12,7 +12,8 @@ let package = Package(
     targets: [
         .executableTarget(
             name: "WhisperTeX",
-            path: "WhisperTeX"
+            path: "WhisperTeX",
+            exclude: ["AppIcon.icns"]
         )
     ]
 )

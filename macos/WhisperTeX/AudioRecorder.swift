@@ -18,6 +18,15 @@ class AudioRecorder: NSObject, AVAudioRecorderDelegate {
     }
 
     func start() throws -> URL {
+        let authStatus = AVCaptureDevice.authorizationStatus(for: .audio)
+        if authStatus == .denied || authStatus == .restricted {
+            throw NSError(
+                domain: "WhisperTeX",
+                code: 100,
+                userInfo: [NSLocalizedDescriptionKey: "Microphone access is denied. Please open System Settings -> Privacy & Security -> Microphone and enable WhisperTeX."]
+            )
+        }
+
         let tempDir = FileManager.default.temporaryDirectory
         let fileURL = tempDir.appendingPathComponent("whispertex_\(UUID().uuidString).wav")
         self.tempAudioURL = fileURL
@@ -39,7 +48,7 @@ class AudioRecorder: NSObject, AVAudioRecorderDelegate {
             throw NSError(
                 domain: "WhisperTeX",
                 code: 101,
-                userInfo: [NSLocalizedDescriptionKey: "Microphone recording failed to initialize. Please verify Microphone permissions in System Settings -> Privacy & Security -> Microphone."]
+                userInfo: [NSLocalizedDescriptionKey: "Microphone recording failed to initialize. Please check Microphone permissions in System Settings -> Privacy & Security -> Microphone."]
             )
         }
 
@@ -64,6 +73,16 @@ class AudioRecorder: NSObject, AVAudioRecorderDelegate {
                 domain: "WhisperTeX",
                 code: 103,
                 userInfo: [NSLocalizedDescriptionKey: "Recorded audio file not found on disk."]
+            )
+        }
+
+        let attr = try? FileManager.default.attributesOfItem(atPath: url.path)
+        let size = (attr?[.size] as? Int64) ?? 0
+        if size < 500 {
+            throw NSError(
+                domain: "WhisperTeX",
+                code: 104,
+                userInfo: [NSLocalizedDescriptionKey: "Recorded audio was empty (\(size) bytes). Please ensure your microphone is connected and authorized in System Settings."]
             )
         }
 
