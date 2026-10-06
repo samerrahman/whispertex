@@ -44,9 +44,9 @@ cat <<EOF > "$APP_DIR/Contents/Info.plist"
     <key>CFBundleSignature</key>
     <string>????</string>
     <key>CFBundleShortVersionString</key>
-    <string>0.2.3</string>
+    <string>0.2.4</string>
     <key>CFBundleVersion</key>
-    <string>4</string>
+    <string>5</string>
     <key>CFBundleIconFile</key>
     <string>AppIcon</string>
     <key>NSPrincipalClass</key>

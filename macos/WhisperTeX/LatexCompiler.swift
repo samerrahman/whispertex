@@ -27,12 +27,7 @@ class LatexCompiler {
         if provider == .offline || apiKey.isEmpty {
             raw = offlineFallback(spoken: spoken)
         } else if provider == .groq {
-            raw = try await callOpenAICompatible(
-                url: URL(string: "https://api.groq.com/openai/v1/chat/completions")!,
-                model: "llama-3.3-70b-versatile",
-                apiKey: apiKey,
-                spoken: spoken
-            )
+            raw = try await callGroq(apiKey: apiKey, spoken: spoken)
         } else if provider == .openai {
             raw = try await callOpenAICompatible(
                 url: URL(string: "https://api.openai.com/v1/chat/completions")!,
@@ -117,6 +112,41 @@ class LatexCompiler {
         }
 
         throw NSError(domain: "WhisperTeX", code: 500, userInfo: [NSLocalizedDescriptionKey: "Failed to parse LLM response"])
+    }
+
+    private func callGroq(apiKey: String, spoken: String) async throws -> String {
+        let models = [
+            "llama-3.1-8b-instant",
+            "openai/gpt-oss-20b",
+            "llama-3.3-70b-versatile",
+            "llama-3.1-70b-versatile"
+        ]
+
+        var lastError: Error?
+        for model in models {
+            do {
+                return try await callOpenAICompatible(
+                    url: URL(string: "https://api.groq.com/openai/v1/chat/completions")!,
+                    model: model,
+                    apiKey: apiKey,
+                    spoken: spoken
+                )
+            } catch {
+                lastError = error
+                let errString = error.localizedDescription.lowercased()
+                if errString.contains("model_not_found") || errString.contains("does not exist") || errString.contains("do not have access") {
+                    // Try next model fallback
+                    continue
+                } else {
+                    throw error
+                }
+            }
+        }
+
+        if let err = lastError {
+            throw err
+        }
+        return offlineFallback(spoken: spoken)
     }
 
     private func callGemini(apiKey: String, spoken: String) async throws -> String {

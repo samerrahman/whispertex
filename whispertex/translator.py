@@ -166,7 +166,7 @@ def translate_spoken_to_latex(spoken: str, config: Dict[str, Any]) -> str:
             return offline_fallback_translator(spoken)
         
         url = "https://api.groq.com/openai/v1/chat/completions"
-        model = config.get("groq_model", "llama-3.3-70b-versatile")
+        model = config.get("groq_model", "llama-3.1-8b-instant")
         headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
         payload = {
             "model": model,

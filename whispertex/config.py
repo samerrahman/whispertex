@@ -18,7 +18,7 @@ DEFAULT_CONFIG: Dict[str, Any] = {
     "auto_paste": True,  # automatically paste via Cmd+V into focused app
     "hotkey": "<cmd>+<shift>+l",
     "groq_api_key": "",
-    "groq_model": "llama-3.3-70b-versatile",
+    "groq_model": "llama-3.1-8b-instant",
     "groq_whisper_model": "whisper-large-v3",
     "openai_api_key": "",
     "openai_model": "gpt-4o-mini",
