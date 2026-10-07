@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhisperTeX — Speech-to-Written LaTeX for Mac</title>
+  <meta name="description" content="Dictate mathematical formulas in natural English and compile them into precision LaTeX that pastes wherever your cursor is blinking on macOS.">
+  <link rel="icon" type="image/png" href="favicon.png">
+
+  <!-- OpenGraph Metadata -->
+  <meta property="og:title" content="WhisperTeX — Speech-to-Written LaTeX for Mac">
+  <meta property="og:description" content="Dictate mathematical formulas in natural English and compile them into precision LaTeX that pastes wherever your cursor is blinking.">
+  <meta property="og:image" content="https://samerrahman.github.io/whispertex/icon.png">
+  <meta property="og:url" content="https://samerrahman.github.io/whispertex/">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- KaTeX for live browser math rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+
+  <style>
+    :root {
+      --bg: #090d16;
+      --bg-card: #111726;
+      --bg-card-hover: #162033;
+      --border: rgba(255, 255, 255, 0.1);
+      --border-accent: rgba(52, 211, 153, 0.3);
+      --accent: #10b981;
+      --accent-glow: rgba(16, 185, 129, 0.25);
+      --accent-light: #34d399;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --text-dim: #6b7280;
+      --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+      --font-mono: "SF Mono", "Fira Code", Menlo, Monaco, Consolas, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* Ambient Background Glow */
+    .glow-bg {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 1000px;
+      height: 550px;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, rgba(14, 165, 233, 0.08) 40%, rgba(9, 13, 22, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Navigation */
+    header {
+      padding: 24px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 9px;
+      box-shadow: 0 4px 12px var(--accent-glow);
+    }
+
+    .brand-text {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.95rem;
+      transition: color 0.15s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--text-main);
+    }
+
+    .badge-pill {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-light);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot-live {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-light);
+      box-shadow: 0 0 8px var(--accent-light);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      padding: 72px 0 54px;
+    }
+
+    .hero-badge-wrap {
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.5rem, 5.5vw, 4.2rem);
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      line-height: 1.12;
+      margin-bottom: 22px;
+      background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p.lead {
+      font-size: clamp(1.1rem, 2vw, 1.35rem);
+      color: var(--text-muted);
+      max-width: 720px;
+      margin: 0 auto 36px;
+      line-height: 1.55;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 26px;
+      border-radius: 10px;
+      font-size: 0.98rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #052e16;
+      box-shadow: 0 4px 20px var(--accent-glow);
+    }
+
+    .btn-primary:hover {
+      background: #059669;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .hero-subtext {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+    }
+
+    .hero-subtext kbd {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Live Interactive Demo */
+    .demo-section {
+      margin: 40px 0 80px;
+    }
+
+    .window-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+      overflow: hidden;
+      max-width: 920px;
+      margin: 0 auto;
+    }
+
+    .window-header {
+      background: rgba(255, 255, 255, 0.03);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .window-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .dot-red { background: #ff5f56; }
+    .dot-yellow { background: #ffbd2e; }
+    .dot-green { background: #27c93f; }
+
+    .window-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .window-body {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Preset Buttons */
+    .presets-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+    }
+
+    .presets-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .preset-pill {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+
+    .preset-pill:hover, .preset-pill.active {
+      background: var(--border-accent);
+      border-color: var(--accent);
+      color: #ffffff;
+    }
+
+    /* Input & Preview Grid */
+    .demo-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .demo-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .speech-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: var(--text-main);
+      font-family: Georgia, serif;
+      font-size: 1.05rem;
+      line-height: 1.5;
+      resize: vertical;
+      min-height: 90px;
+      outline: none;
+    }
+
+    .speech-input::placeholder {
+      color: var(--text-dim);
+    }
+
+    .preview-box {
+      min-height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      overflow-x: auto;
+    }
+
+    .latex-code-box {
+      background: #060910;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--accent-light);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      overflow-x: auto;
+    }
+
+    .copy-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+
+    .copy-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    /* Features Section */
+    .features-section {
+      padding: 60px 0 80px;
+      border-top: 1px solid var(--border);
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .section-header h2 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+
+    .section-header p {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--border-accent);
+    }
+
+    .feature-icon {
+      font-size: 1.8rem;
+      margin-bottom: 14px;
+      display: inline-block;
+    }
+
+    .feature-card h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .feature-card p {
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      line-height: 1.55;
+    }
+
+    /* How It Works Section */
+    .workflow-section {
+      padding: 60px 0 80px;
+      border-top: 1px solid var(--border);
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 36px;
+    }
+
+    @media (max-width: 768px) {
+      .steps-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .step-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      position: relative;
+    }
+
+    .step-number {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--accent);
+      opacity: 0.8;
+      margin-bottom: 10px;
+    }
+
+    .step-card h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .step-card p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 0;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.9rem;
+    }
+
+    footer a {
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      color: var(--accent-light);
+    }
+  </style>
+</head>
+<body>
+  <div class="glow-bg"></div>
+
+  <header>
+    <div class="container nav">
+      <a href="#" class="brand">
+        <img src="icon.png" alt="WhisperTeX" class="brand-icon">
+        <span class="brand-text">WhisperTeX</span>
+      </a>
+      <div class="nav-links">
+        <span class="badge-pill"><span class="dot-live"></span> v0.2.4 for macOS</span>
+        <a href="#demo">Live Demo</a>
+        <a href="#features">Features</a>
+        <a href="https://github.com/samerrahman/whispertex" target="_blank" rel="noopener">GitHub ↗</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-badge-wrap">
+        <span class="badge-pill">🎙️ Native Apple Silicon Menu Bar & Standalone App</span>
+      </div>
+      <h1>Speak Math in English.<br>Type LaTeX at Your Cursor.</h1>
+      <p class="lead">
+        No more memorizing tedious backslashes, braces, or voice macros. Dictate natural mathematical English and WhisperTeX translates it into clean, compiled LaTeX—automatically pasting wherever your cursor is blinking across Overleaf, Notion, Google Docs, or VS Code.
+      </p>
+
+      <div class="hero-actions">
+        <a href="https://github.com/samerrahman/whispertex/releases/latest/download/WhisperTeX-macos.dmg" class="btn btn-primary">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 3.5c.62-.75 1.04-1.8 0.92-2.85-.9.04-1.99.6-2.63 1.35-.57.65-.98 1.71-.85 2.73 1 .08 2.03-.51 2.56-1.23z"/>
+          </svg>
+          Download for Mac (.dmg)
+        </a>
+        <a href="https://github.com/samerrahman/whispertex/releases/latest/download/WhisperTeX-macos-arm64.zip" class="btn btn-secondary">
+          Download .zip
+        </a>
+        <a href="https://github.com/samerrahman/whispertex" class="btn btn-secondary" target="_blank" rel="noopener">
+          GitHub Repository
+        </a>
+      </div>
+
+      <div class="hero-subtext">
+        Press <kbd>⌘</kbd> + <kbd>Shift</kbd> + <kbd>L</kbd> anywhere on macOS &bull; Built for macOS 13+ (Ventura, Sonoma, Sequoia)
+      </div>
+    </section>
+
+    <!-- Interactive Live Demo Section -->
+    <section class="demo-section" id="demo">
+      <div class="window-card">
+        <div class="window-header">
+          <div class="window-controls">
+            <span class="dot dot-red"></span>
+            <span class="dot dot-yellow"></span>
+            <span class="dot dot-green"></span>
+          </div>
+          <div class="window-title">
+            <span>WhisperTeX Live Interactive Playground</span>
+          </div>
+          <div>
+            <span class="badge-pill" style="font-size: 0.7rem;">Browser Simulation</span>
+          </div>
+        </div>
+
+        <div class="window-body">
+          <div>
+            <div class="presets-label">Try Example Math Phrases:</div>
+            <div class="presets-grid">
+              <button class="preset-pill active" onclick="loadSample(0)">Gamma Integral</button>
+              <button class="preset-pill" onclick="loadSample(1)">Metric Tensor</button>
+              <button class="preset-pill" onclick="loadSample(2)">Einstein Field Equations</button>
+              <button class="preset-pill" onclick="loadSample(3)">Schrödinger Equation</button>
+              <button class="preset-pill" onclick="loadSample(4)">Dirac Bra-Ket</button>
+              <button class="preset-pill" onclick="loadSample(5)">Gaussian Integral</button>
+            </div>
+          </div>
+
+          <div class="demo-grid">
+            <!-- Left: Spoken English -->
+            <div class="panel">
+              <div class="panel-header">
+                <span>🎙️ Spoken English Input</span>
+                <span id="speechState" style="font-size: 0.75rem; color: var(--accent-light);">Simulated Speech</span>
+              </div>
+              <textarea id="spokenInput" class="speech-input" placeholder="Type or paste any spoken math expression..." oninput="translateInput()"></textarea>
+              <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-dim);">
+                <span>Edit freely to test instant translation</span>
+                <button class="copy-btn" onclick="clearInput()">Clear</button>
+              </div>
+            </div>
+
+            <!-- Right: Rendered Formula & LaTeX -->
+            <div class="panel">
+              <div class="panel-header">
+                <span>📐 Live KaTeX Typeset Preview</span>
+                <span style="font-size: 0.75rem; color: var(--text-dim);">Display Math ($$)</span>
+              </div>
+              <div class="preview-box" id="mathPreview">
+                <!-- Rendered by KaTeX -->
+              </div>
+              <div class="latex-code-box">
+                <span id="latexOutput">\int_{0}^{\infty} x^2 e^{-x} \, dx = 2</span>
+                <button class="copy-btn" id="copyBtn" onclick="copyLatex()">Copy</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section" id="features">
+      <div class="section-header">
+        <h2>Engineered for Mathematicians & Researchers</h2>
+        <p>Seamlessly dictate complex scientific math into any application without taking your hands off the keyboard.</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <h3>Auto-Paste at Cursor</h3>
+          <p>Types wherever your cursor is blinking. Dictate equations directly into <strong>Overleaf</strong>, <strong>Notion</strong>, <strong>Google Docs</strong>, <strong>VS Code</strong>, <strong>Obsidian</strong>, or <strong>Slack</strong>.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">⌨️</div>
+          <h3>Global Push-to-Talk Hotkey</h3>
+          <p>Hit <kbd>⌘</kbd> + <kbd>Shift</kbd> + <kbd>L</kbd> anywhere across macOS. Speak your formula in regular English, press again, and your compiled LaTeX appears instantly.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🧠</div>
+          <h3>Mathematical Context Understanding</h3>
+          <p>Understands tensors, Greek letters, bounds, fractions, operator hats, bra-kets, and differentials without forcing you to memorize macro names like "backslash".</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🪟</div>
+          <h3>Dual Window & Menu Bar App</h3>
+          <p>Lives discreetly in your macOS top menu bar as <code>∫</code>, and offers a full standalone window with a built-in Permissions Setup & Diagnostics dashboard.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🚀</div>
+          <h3>Sub-300ms Inference</h3>
+          <p>Powered by Groq's high-throughput LPU running Whisper Large v3 and Llama 3.1 8B Instant, plus support for OpenAI GPT-4o-mini and Google Gemini.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🔒</div>
+          <h3>Private & Zero Telemetry</h3>
+          <p>Your audio and formulas are never tracked or saved to third-party telemetry servers. Use your own free API keys or offline fallback engine.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="workflow-section">
+      <div class="section-header">
+        <h2>Three Steps to Effortless LaTeX</h2>
+        <p>From speech to formatted publication-ready LaTeX in under a second.</p>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number">01</div>
+          <h3>Press ⌘+Shift+L</h3>
+          <p>Place your cursor in Overleaf, Notion, Google Docs, or VS Code, and press the global Push-to-Talk hotkey.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">02</div>
+          <h3>Speak in Plain English</h3>
+          <p>Say "The integral from zero to infinity of x squared times e to the minus x dx equals two" or any advanced formula.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">03</div>
+          <h3>Watch It Type</h3>
+          <p>WhisperTeX transcribes, formats, wraps with your chosen delimiter ($$, $, or \[\dots\]), and simulates Cmd+V directly at your cursor.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>Created by <a href="https://github.com/samerrahman" target="_blank" rel="noopener">Samer Rahman</a> &bull; Open Source under the MIT License</p>
+      <p style="margin-top: 8px;">
+        <a href="https://github.com/samerrahman/whispertex" target="_blank" rel="noopener">GitHub</a> &bull;
+        <a href="https://github.com/samerrahman/whispertex/releases" target="_blank" rel="noopener">Releases</a> &bull;
+        <a href="https://github.com/samerrahman/whispertex/issues" target="_blank" rel="noopener">Issues</a>
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    const SAMPLES = [
+      {
+        spoken: "The integral from zero to infinity of x squared times e to the minus x dx equals two",
+        latex: "\\int_{0}^{\\infty} x^2 e^{-x} \\, dx = 2"
+      },
+      {
+        spoken: "manifold M with metric tensor g sub mu nu",
+        latex: "\\mathcal{M}, \\quad g_{\\mu\\nu}"
+      },
+      {
+        spoken: "capital G sub mu nu plus capital Lambda times g sub mu nu equals eight pi capital G over c to the fourth times capital T sub mu nu",
+        latex: "G_{\\mu\\nu} + \\Lambda g_{\\mu\\nu} = \\frac{8\\pi G}{c^4} T_{\\mu\\nu}"
+      },
+      {
+        spoken: "i h-bar partial derivative with respect to t of psi of x and t equals minus h-bar squared over two m second partial of psi with respect to x squared plus capital V of x times psi",
+        latex: "i\\hbar \\frac{\\partial \\psi(x,t)}{\\partial t} = -\\frac{\\hbar^2}{2m} \\frac{\\partial^2 \\psi}{\\partial x^2} + V(x)\\psi"
+      },
+      {
+        spoken: "bra psi H-hat ket psi equals integral of psi star of x H-hat psi of x dx",
+        latex: "\\langle \\psi | \\hat{H} | \\psi \\rangle = \\int \\psi^*(x) \\hat{H} \\psi(x) \\, dx"
+      },
+      {
+        spoken: "integral from minus infinity to plus infinity of e to the minus x squared dx equals square root of pi",
+        latex: "\\int_{-\\infty}^{\\infty} e^{-x^2} \\, dx = \\sqrt{\\pi}"
+      }
+    ];
+
+    let currentSampleIndex = 0;
+
+    function renderMath(latex) {
+      const preview = document.getElementById("mathPreview");
+      const codeOutput = document.getElementById("latexOutput");
+      codeOutput.textContent = latex;
+
+      if (window.katex) {
+        try {
+          katex.render(latex, preview, {
+            displayMode: true,
+            throwOnError: false
+          });
+        } catch (e) {
+          preview.textContent = latex;
+        }
+      } else {
+        preview.textContent = latex;
+      }
+    }
+
+    function loadSample(index) {
+      currentSampleIndex = index;
+      const pills = document.querySelectorAll(".preset-pill");
+      pills.forEach((p, idx) => {
+        p.classList.toggle("active", idx === index);
+      });
+
+      const sample = SAMPLES[index];
+      document.getElementById("spokenInput").value = sample.spoken;
+      renderMath(sample.latex);
+    }
+
+    function translateInput() {
+      const text = document.getElementById("spokenInput").value.trim().toLowerCase();
+      if (!text) {
+        renderMath("");
+        return;
+      }
+
+      // Check matching samples
+      for (const s of SAMPLES) {
+        if (text === s.spoken.toLowerCase()) {
+          renderMath(s.latex);
+          return;
+        }
+      }
+
+      // Simple heuristic client-side parser
+      let latex = text;
+      const greek = {
+        alpha: "\\alpha", beta: "\\beta", gamma: "\\gamma", delta: "\\delta",
+        lambda: "\\lambda", mu: "\\mu", nu: "\\nu", pi: "\\pi",
+        sigma: "\\sigma", theta: "\\theta", psi: "\\psi", omega: "\\omega"
+      };
+
+      for (const [k, v] of Object.entries(greek)) {
+        latex = latex.replace(new RegExp(`\\b${k}\\b`, "g"), v);
+      }
+
+      latex = latex
+        .replace(/squared/g, "^2")
+        .replace(/cubed/g, "^3")
+        .replace(/equals/g, "=")
+        .replace(/plus/g, "+")
+        .replace(/minus/g, "-")
+        .replace(/infinity/g, "\\infty")
+        .replace(/square root of ([a-zA-Z0-9\\]+)/g, "\\sqrt{$1}")
+        .replace(/fraction of ([a-zA-Z0-9\\]+) over ([a-zA-Z0-9\\]+)/g, "\\frac{$1}{$2}");
+
+      renderMath(latex);
+    }
+
+    function clearInput() {
+      document.getElementById("spokenInput").value = "";
+      renderMath("");
+    }
+
+    function copyLatex() {
+      const text = document.getElementById("latexOutput").textContent;
+      navigator.clipboard.writeText(`$$\n${text}\n$$`).then(() => {
+        const btn = document.getElementById("copyBtn");
+        btn.textContent = "Copied!";
+        setTimeout(() => { btn.textContent = "Copy"; }, 1500);
+      });
+    }
+
+    // Initialize on load
+    window.addEventListener("DOMContentLoaded", () => {
+      loadSample(0);
+    });
+  </script>
+</body>
+</html>
