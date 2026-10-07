@@ -15,7 +15,7 @@
 
 ---
 
-> **⚠️ Work in Progress**: This project is very much an early work in progress and may not be totally functional or stable across every setup. Expect bugs, quirks, and rough edges.
+> This project is a work in progress and may not be totally functional. Expect bugs.
 
 ## What it does
 
