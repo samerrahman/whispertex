@@ -57,6 +57,8 @@ cat <<EOF > "$APP_DIR/Contents/Info.plist"
     <true/>
     <key>NSMicrophoneUsageDescription</key>
     <string>WhisperTeX requires microphone access to transcribe spoken mathematical formulas.</string>
+    <key>NSAccessibilityUsageDescription</key>
+    <string>WhisperTeX requires Accessibility permissions to automatically paste compiled LaTeX at your cursor location.</string>
     <key>NSAppleEventsUsageDescription</key>
     <string>WhisperTeX uses Apple Events to paste converted LaTeX equations directly at your cursor.</string>
 </dict>
@@ -65,9 +67,20 @@ EOF
 
 echo "APPL????" > "$APP_DIR/Contents/PkgInfo"
 
-echo "✍️ Signing application bundle with ad-hoc signature..."
-codesign --force --deep --sign - "$APP_DIR"
+DEV_IDENTITY=$(security find-identity -p codesigning -v | grep -o 'Apple Development: [^"]*' | head -n 1 || true)
+if [ -z "$DEV_IDENTITY" ]; then
+    DEV_IDENTITY=$(security find-identity -p codesigning -v | grep -o '"[^"]*"' | head -n 1 | tr -d '"' || true)
+fi
+
+if [ -n "$DEV_IDENTITY" ]; then
+    echo "✍️ Signing application bundle with Apple Development certificate: $DEV_IDENTITY..."
+    codesign --force --deep --sign "$DEV_IDENTITY" "$APP_DIR"
+else
+    echo "✍️ Signing application bundle with ad-hoc signature and designated requirement..."
+    codesign --force --deep --sign - -r='designated => identifier "com.samerrahman.whispertex"' "$APP_DIR"
+fi
 codesign -vvv "$APP_DIR"
+
 
 cd "$DIR/dist"
 echo "🗜️ Creating WhisperTeX-macos-arm64.zip..."

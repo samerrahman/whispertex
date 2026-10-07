@@ -11,12 +11,37 @@ class PermissionsManager: ObservableObject {
     @Published var microphoneStatus: AVAuthorizationStatus = .notDetermined
     @Published var isTestingMicrophone: Bool = false
     @Published var micTestMessage: String? = nil
+    @Published var cacheResetStatus: String? = nil
 
     private var testRecorder: AVAudioRecorder?
     private var testAudioURL: URL?
+    private var pollTimer: Timer?
 
     init() {
         checkAll()
+        startMonitoring()
+    }
+
+    func startMonitoring() {
+        // Automatically re-check when user focuses WhisperTeX (e.g. returns from System Settings)
+        NotificationCenter.default.addObserver(
+            forName: NSApplication.didBecomeActiveNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.checkAll()
+            }
+        }
+
+        // Live polling every 1.5s to detect permission grant without requiring a click
+        pollTimer?.invalidate()
+        pollTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: true) { [weak self] _ in
+            Task { @MainActor in
+                self?.checkAccessibility()
+                self?.checkMicrophone()
+            }
+        }
     }
 
     func checkAll() {
@@ -26,7 +51,13 @@ class PermissionsManager: ObservableObject {
 
     func checkAccessibility() {
         let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: false] as CFDictionary
-        isAccessibilityGranted = AXIsProcessTrustedWithOptions(options)
+        let granted = AXIsProcessTrustedWithOptions(options)
+        if isAccessibilityGranted != granted {
+            isAccessibilityGranted = granted
+            if granted {
+                cacheResetStatus = nil
+            }
+        }
     }
 
     func requestAccessibility() {
@@ -41,6 +72,31 @@ class PermissionsManager: ObservableObject {
     func openAccessibilitySettings() {
         if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility") {
             NSWorkspace.shared.open(url)
+        }
+    }
+
+    func resetPermissionCache() {
+        let bundleID = Bundle.main.bundleIdentifier ?? "com.samerrahman.whispertex"
+        cacheResetStatus = "Resetting macOS security cache..."
+
+        let task = Process()
+        task.executableURL = URL(fileURLWithPath: "/usr/bin/tccutil")
+        task.arguments = ["reset", "Accessibility", bundleID]
+
+        do {
+            try task.run()
+            task.waitUntilExit()
+
+            // Prompt system to register current binary
+            let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary
+            _ = AXIsProcessTrustedWithOptions(options)
+
+            // Re-open System Settings
+            openAccessibilitySettings()
+
+            cacheResetStatus = "✅ Cache reset. In System Settings, please toggle WhisperTeX ON."
+        } catch {
+            cacheResetStatus = "⚠️ Error resetting cache: \(error.localizedDescription)"
         }
     }
 

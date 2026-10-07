@@ -9,6 +9,7 @@ struct MainWindowView: View {
     @State private var showGroqKey: Bool = false
     @State private var showOpenAIKey: Bool = false
     @State private var showGeminiKey: Bool = false
+    @State private var testPasteText: String = ""
 
     var body: some View {
         VStack(spacing: 0) {
@@ -341,25 +342,73 @@ struct MainWindowView: View {
                                 .font(.system(size: 11))
                                 .foregroundColor(.secondary)
 
-                            HStack(spacing: 10) {
-                                if permissions.isAccessibilityGranted {
-                                    Button("Open Accessibility Settings") {
-                                        permissions.requestAccessibility()
-                                    }
-                                    .buttonStyle(.bordered)
-                                } else {
-                                    Button("Open Accessibility Settings") {
-                                        permissions.requestAccessibility()
-                                    }
-                                    .buttonStyle(.borderedProminent)
-                                }
+                            if !permissions.isAccessibilityGranted {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    HStack(spacing: 10) {
+                                        Button("Open Accessibility Settings") {
+                                            permissions.requestAccessibility()
+                                        }
+                                        .buttonStyle(.borderedProminent)
 
-                                Button("Re-check Status") {
-                                    permissions.checkAccessibility()
+                                        Button("Fix Stale Permission Cache") {
+                                            permissions.resetPermissionCache()
+                                        }
+                                        .buttonStyle(.bordered)
+
+                                        Button("Re-check Status") {
+                                            permissions.checkAccessibility()
+                                        }
+                                        .buttonStyle(.bordered)
+                                    }
+
+                                    Text("⚠️ If System Settings already shows WhisperTeX as turned ON, macOS has an outdated security cache from an older build. Click \"Fix Stale Permission Cache\", then toggle WhisperTeX ON in System Settings.")
+                                        .font(.system(size: 11))
+                                        .foregroundColor(.orange)
+                                        .fixedSize(horizontal: false, vertical: true)
+
+                                    if let status = permissions.cacheResetStatus {
+                                        Text(status)
+                                            .font(.system(size: 11, weight: .semibold))
+                                            .foregroundColor(.blue)
+                                    }
                                 }
-                                .buttonStyle(.bordered)
+                                .padding(.top, 4)
+                            } else {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    HStack(spacing: 10) {
+                                        Button("Open Accessibility Settings") {
+                                            permissions.requestAccessibility()
+                                        }
+                                        .buttonStyle(.bordered)
+
+                                        Button("Test Keystroke Simulation") {
+                                            PasteboardHelper.shared.copyToClipboard("\\int_0^\\infty e^{-x}\\,dx = 1")
+                                            PasteboardHelper.shared.sendPasteKeystroke()
+                                        }
+                                        .buttonStyle(.bordered)
+
+                                        Button("Re-check Status") {
+                                            permissions.checkAccessibility()
+                                        }
+                                        .buttonStyle(.bordered)
+                                    }
+
+                                    HStack(spacing: 8) {
+                                        TextField("Click here and press 'Test Keystroke Simulation'...", text: $testPasteText)
+                                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                                            .font(.system(size: 11))
+                                            .frame(maxWidth: 340)
+
+                                        if !testPasteText.isEmpty {
+                                            Button("Clear") {
+                                                testPasteText = ""
+                                            }
+                                            .font(.system(size: 10))
+                                        }
+                                    }
+                                }
+                                .padding(.top, 4)
                             }
-                            .padding(.top, 4)
                         }
                         Spacer()
                     }
