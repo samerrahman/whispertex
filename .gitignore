@@ -30,3 +30,12 @@ AppIcon.icns
 *.mp3
 *.m4a
 .env
+.env.*
+*.env
+*.key
+*.pem
+*.p12
+credentials.json
+secrets.json
+config.json
+
