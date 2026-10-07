@@ -1,8 +1,16 @@
-# WhisperTeX
+<div align="center">
 
-Dictate math in spoken English and paste it as compiled LaTeX wherever your cursor is blinking on macOS.
+# 🎙️ WhisperTeX for Mac
 
-[Website & Demo](https://whispertex.dev) · [Download .dmg](https://github.com/samerrahman/whispertex/releases/latest/download/WhisperTeX-macos.dmg)
+**Dictate standard mathematical English. WhisperTeX types clean, precision LaTeX wherever your cursor is blinking.**
+
+*A native macOS Menu Bar application + Python CLI.*
+
+[![Website](https://img.shields.io/badge/Website-whispertex.dev-emerald?style=for-the-badge&logo=safari)](https://whispertex.dev)
+[![Download DMG](https://img.shields.io/badge/Download-macOS%20.dmg-blue?style=for-the-badge&logo=apple)](https://github.com/samerrahman/whispertex/releases/latest)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+</div>
 
 ---
 
