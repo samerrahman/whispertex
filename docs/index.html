@@ -51,7 +51,6 @@
       min-height: 100vh;
     }
 
-    /* Ambient Background Glow */
     .glow-bg {
       position: absolute;
       top: 0;
@@ -152,7 +151,7 @@
     /* Hero Section */
     .hero {
       text-align: center;
-      padding: 72px 0 54px;
+      padding: 72px 0 48px;
     }
 
     .hero-badge-wrap {
@@ -173,7 +172,7 @@
     .hero p.lead {
       font-size: clamp(1.1rem, 2vw, 1.35rem);
       color: var(--text-muted);
-      max-width: 720px;
+      max-width: 740px;
       margin: 0 auto 36px;
       line-height: 1.55;
     }
@@ -240,18 +239,18 @@
       color: var(--text-muted);
     }
 
-    /* Live Interactive Demo */
+    /* Interactive Animated Showcase */
     .demo-section {
-      margin: 40px 0 80px;
+      margin: 30px 0 80px;
     }
 
     .window-card {
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 16px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
       overflow: hidden;
-      max-width: 920px;
+      max-width: 980px;
       margin: 0 auto;
     }
 
@@ -296,14 +295,13 @@
       gap: 20px;
     }
 
-    /* Preset Buttons */
-    .presets-label {
-      font-size: 0.8rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-dim);
-      margin-bottom: 8px;
+    /* Controls Bar */
+    .controls-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
     }
 
     .presets-grid {
@@ -318,7 +316,7 @@
       color: var(--text-muted);
       padding: 6px 14px;
       border-radius: 8px;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       cursor: pointer;
       transition: all 0.15s ease;
       font-family: inherit;
@@ -328,98 +326,253 @@
       background: var(--border-accent);
       border-color: var(--accent);
       color: #ffffff;
+      box-shadow: 0 0 10px var(--accent-glow);
     }
 
-    /* Input & Preview Grid */
-    .demo-grid {
+    .playback-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ctrl-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+      transition: background 0.15s ease;
+    }
+
+    .ctrl-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    /* Split View: WhisperTeX vs Target Editor */
+    .split-view {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 16px;
+      gap: 18px;
     }
 
-    @media (max-width: 768px) {
-      .demo-grid {
+    @media (max-width: 820px) {
+      .split-view {
         grid-template-columns: 1fr;
       }
     }
 
-    .panel {
-      background: rgba(0, 0, 0, 0.25);
+    /* Pane 1: WhisperTeX Native App */
+    .app-pane {
+      background: rgba(0, 0, 0, 0.35);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 16px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 14px;
     }
 
-    .panel-header {
+    .pane-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-size: 0.82rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding-bottom: 10px;
+    }
+
+    .app-status-badge {
+      font-size: 0.78rem;
       font-weight: 600;
-      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      transition: all 0.3s ease;
     }
 
-    .speech-input {
-      width: 100%;
-      background: transparent;
-      border: none;
-      color: var(--text-main);
-      font-family: Georgia, serif;
-      font-size: 1.05rem;
-      line-height: 1.5;
-      resize: vertical;
-      min-height: 90px;
-      outline: none;
+    .status-listening {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
     }
 
-    .speech-input::placeholder {
+    .status-compiling {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .status-pasted {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-light);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    /* Sound Waveform Animation */
+    .audio-wave {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      height: 14px;
+    }
+
+    .audio-bar {
+      width: 3px;
+      height: 4px;
+      background: currentColor;
+      border-radius: 2px;
+      transition: height 0.15s ease;
+    }
+
+    .is-listening .audio-bar:nth-child(1) { animation: wave 0.6s ease-in-out infinite alternate; }
+    .is-listening .audio-bar:nth-child(2) { animation: wave 0.45s ease-in-out infinite alternate 0.1s; }
+    .is-listening .audio-bar:nth-child(3) { animation: wave 0.75s ease-in-out infinite alternate 0.2s; }
+    .is-listening .audio-bar:nth-child(4) { animation: wave 0.5s ease-in-out infinite alternate 0.15s; }
+    .is-listening .audio-bar:nth-child(5) { animation: wave 0.65s ease-in-out infinite alternate 0.05s; }
+
+    @keyframes wave {
+      0% { height: 3px; }
+      100% { height: 14px; }
+    }
+
+    .speech-transcript-box {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 72px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .transcript-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
       color: var(--text-dim);
+      margin-bottom: 4px;
+    }
+
+    .transcript-text {
+      font-family: Georgia, serif;
+      font-size: 1rem;
+      color: var(--text-main);
+      font-style: italic;
+      line-height: 1.45;
+    }
+
+    .typewriter-cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1.1em;
+      background: var(--accent);
+      vertical-align: middle;
+      margin-left: 2px;
+      animation: blink 0.9s infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
     }
 
     .preview-box {
-      min-height: 100px;
+      min-height: 85px;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 16px;
+      padding: 14px;
       background: rgba(255, 255, 255, 0.02);
       border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.05);
       overflow-x: auto;
+      transition: opacity 0.3s ease;
     }
 
-    .latex-code-box {
-      background: #060910;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 8px;
-      padding: 10px 14px;
+    /* Pane 2: Target Document (Overleaf / Notion) */
+    .editor-pane {
+      background: #0d1117;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
       font-family: var(--font-mono);
-      font-size: 0.85rem;
-      color: var(--accent-light);
+      font-size: 0.82rem;
+    }
+
+    .editor-header {
+      background: rgba(255, 255, 255, 0.04);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      overflow-x: auto;
-    }
-
-    .copy-btn {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid var(--border);
-      color: var(--text-main);
-      padding: 5px 12px;
-      border-radius: 6px;
+      color: var(--text-muted);
       font-size: 0.78rem;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      font-family: inherit;
-      white-space: nowrap;
     }
 
-    .copy-btn:hover {
-      background: rgba(255, 255, 255, 0.15);
+    .editor-body {
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .code-line {
+      display: flex;
+      align-items: flex-start;
+      line-height: 1.6;
+    }
+
+    .line-num {
+      width: 28px;
+      color: #4b5563;
+      user-select: none;
+      text-align: right;
+      padding-right: 12px;
+      flex-shrink: 0;
+    }
+
+    .line-content {
+      color: #94a3b8;
+      word-break: break-all;
+    }
+
+    .pasted-formula-line {
+      background: rgba(16, 185, 129, 0.1);
+      border-radius: 4px;
+      transition: background 0.6s ease;
+    }
+
+    .pasted-flash {
+      animation: pasteGlow 1.2s ease;
+    }
+
+    @keyframes pasteGlow {
+      0% { background: rgba(16, 185, 129, 0.35); box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
+      100% { background: rgba(16, 185, 129, 0.1); box-shadow: none; }
+    }
+
+    .kw { color: #f472b6; }
+    .env { color: #60a5fa; }
+    .math-code { color: #34d399; font-weight: 600; }
+
+    .simulation-footnote {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      text-align: center;
+      padding-top: 4px;
     }
 
     /* Features Section */
@@ -596,7 +749,7 @@
       </div>
     </section>
 
-    <!-- Interactive Live Demo Section -->
+    <!-- Animated Interactive Simulation Showcase -->
     <section class="demo-section" id="demo">
       <div class="window-card">
         <div class="window-header">
@@ -606,54 +759,100 @@
             <span class="dot dot-green"></span>
           </div>
           <div class="window-title">
-            <span>WhisperTeX Live Interactive Playground</span>
+            <span>WhisperTeX &rarr; Overleaf Cursor Auto-Paste Demo</span>
           </div>
           <div>
-            <span class="badge-pill" style="font-size: 0.7rem;">Browser Simulation</span>
+            <span class="badge-pill" style="font-size: 0.7rem;">Live Workflow Animation</span>
           </div>
         </div>
 
         <div class="window-body">
-          <div>
-            <div class="presets-label">Try Example Math Phrases:</div>
+          <!-- Controls Bar -->
+          <div class="controls-bar">
             <div class="presets-grid">
-              <button class="preset-pill active" onclick="loadSample(0)">Gamma Integral</button>
-              <button class="preset-pill" onclick="loadSample(1)">Metric Tensor</button>
-              <button class="preset-pill" onclick="loadSample(2)">Einstein Field Equations</button>
-              <button class="preset-pill" onclick="loadSample(3)">Schrödinger Equation</button>
-              <button class="preset-pill" onclick="loadSample(4)">Dirac Bra-Ket</button>
-              <button class="preset-pill" onclick="loadSample(5)">Gaussian Integral</button>
+              <button class="preset-pill active" onclick="selectPreset(0)">∫ Gamma Integral</button>
+              <button class="preset-pill" onclick="selectPreset(1)">g_μν Metric Tensor</button>
+              <button class="preset-pill" onclick="selectPreset(2)">G_μν Einstein Field</button>
+              <button class="preset-pill" onclick="selectPreset(3)">iℏ∂ψ Schrödinger</button>
+              <button class="preset-pill" onclick="selectPreset(4)">⟨ψ|H|ψ⟩ Dirac Bra-Ket</button>
+              <button class="preset-pill" onclick="selectPreset(5)">√π Gaussian</button>
+            </div>
+
+            <div class="playback-controls">
+              <button class="ctrl-btn" id="autoPlayBtn" onclick="toggleAutoPlay()">
+                <span id="playIcon">⏸</span> Auto-Play
+              </button>
+              <button class="ctrl-btn" onclick="replayCurrent()">⟳ Replay</button>
+              <button class="ctrl-btn" onclick="nextPreset()">Next ➔</button>
             </div>
           </div>
 
-          <div class="demo-grid">
-            <!-- Left: Spoken English -->
-            <div class="panel">
-              <div class="panel-header">
-                <span>🎙️ Spoken English Input</span>
-                <span id="speechState" style="font-size: 0.75rem; color: var(--accent-light);">Simulated Speech</span>
+          <!-- Split View Simulation -->
+          <div class="split-view">
+            <!-- Left Pane: WhisperTeX UI -->
+            <div class="app-pane">
+              <div class="pane-header">
+                <span style="font-size: 0.85rem; font-weight: 700; color: #fff;">∫ WhisperTeX</span>
+                <span class="app-status-badge status-listening" id="appStatus">
+                  <div class="audio-wave is-listening" id="audioWave">
+                    <span class="audio-bar"></span>
+                    <span class="audio-bar"></span>
+                    <span class="audio-bar"></span>
+                    <span class="audio-bar"></span>
+                    <span class="audio-bar"></span>
+                  </div>
+                  <span id="statusLabel">Listening to Math...</span>
+                </span>
               </div>
-              <textarea id="spokenInput" class="speech-input" placeholder="Type or paste any spoken math expression..." oninput="translateInput()"></textarea>
-              <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-dim);">
-                <span>Edit freely to test instant translation</span>
-                <button class="copy-btn" onclick="clearInput()">Clear</button>
+
+              <!-- Spoken Transcript -->
+              <div class="speech-transcript-box">
+                <span class="transcript-label">What WhisperTeX Heard</span>
+                <div class="transcript-text">
+                  “<span id="transcriptText"></span><span class="typewriter-cursor" id="typeCursor"></span>”
+                </div>
+              </div>
+
+              <!-- Rendered KaTeX Output -->
+              <div>
+                <span class="transcript-label">Live KaTeX Typeset Preview</span>
+                <div class="preview-box" id="katexPreview">
+                  <!-- Rendered dynamically -->
+                </div>
               </div>
             </div>
 
-            <!-- Right: Rendered Formula & LaTeX -->
-            <div class="panel">
-              <div class="panel-header">
-                <span>📐 Live KaTeX Typeset Preview</span>
-                <span style="font-size: 0.75rem; color: var(--text-dim);">Display Math ($$)</span>
+            <!-- Right Pane: Target Document (Overleaf Mockup) -->
+            <div class="editor-pane">
+              <div class="editor-header">
+                <span>📄 main.tex — Overleaf Editor</span>
+                <span>Active Cursor: Line 3</span>
               </div>
-              <div class="preview-box" id="mathPreview">
-                <!-- Rendered by KaTeX -->
-              </div>
-              <div class="latex-code-box">
-                <span id="latexOutput">\int_{0}^{\infty} x^2 e^{-x} \, dx = 2</span>
-                <button class="copy-btn" id="copyBtn" onclick="copyLatex()">Copy</button>
+              <div class="editor-body">
+                <div class="code-line">
+                  <span class="line-num">1</span>
+                  <span class="line-content"><span class="kw">\documentclass</span>{article}</span>
+                </div>
+                <div class="code-line">
+                  <span class="line-num">2</span>
+                  <span class="line-content"><span class="kw">\begin</span>{<span class="env">document</span>}</span>
+                </div>
+                <div class="code-line pasted-formula-line" id="targetLine">
+                  <span class="line-num">3</span>
+                  <span class="line-content">
+                    <span class="math-code" id="editorCode"></span><span class="typewriter-cursor" id="editorCursor"></span>
+                  </span>
+                </div>
+                <div class="code-line">
+                  <span class="line-num">4</span>
+                  <span class="line-content"><span class="kw">\end</span>{<span class="env">document</span>}</span>
+                </div>
               </div>
             </div>
+          </div>
+
+          <div class="simulation-footnote">
+            💡 The desktop app uses your real microphone to transcribe and paste directly into any active app at <strong>&lt;300ms latency</strong> via Groq or OpenAI.
           </div>
         </div>
       </div>
@@ -749,120 +948,156 @@
     const SAMPLES = [
       {
         spoken: "The integral from zero to infinity of x squared times e to the minus x dx equals two",
-        latex: "\\int_{0}^{\\infty} x^2 e^{-x} \\, dx = 2"
+        rawLatex: "\\int_{0}^{\\infty} x^2 e^{-x} \\, dx = 2",
+        formatted: "$$\\int_{0}^{\\infty} x^2 e^{-x} \\, dx = 2$$"
       },
       {
         spoken: "manifold M with metric tensor g sub mu nu",
-        latex: "\\mathcal{M}, \\quad g_{\\mu\\nu}"
+        rawLatex: "\\mathcal{M}, \\quad g_{\\mu\\nu}",
+        formatted: "$$\\mathcal{M}, \\quad g_{\\mu\\nu}$$"
       },
       {
         spoken: "capital G sub mu nu plus capital Lambda times g sub mu nu equals eight pi capital G over c to the fourth times capital T sub mu nu",
-        latex: "G_{\\mu\\nu} + \\Lambda g_{\\mu\\nu} = \\frac{8\\pi G}{c^4} T_{\\mu\\nu}"
+        rawLatex: "G_{\\mu\\nu} + \\Lambda g_{\\mu\\nu} = \\frac{8\\pi G}{c^4} T_{\\mu\\nu}",
+        formatted: "$$G_{\\mu\\nu} + \\Lambda g_{\\mu\\nu} = \\frac{8\\pi G}{c^4} T_{\\mu\\nu}$$"
       },
       {
         spoken: "i h-bar partial derivative with respect to t of psi of x and t equals minus h-bar squared over two m second partial of psi with respect to x squared plus capital V of x times psi",
-        latex: "i\\hbar \\frac{\\partial \\psi(x,t)}{\\partial t} = -\\frac{\\hbar^2}{2m} \\frac{\\partial^2 \\psi}{\\partial x^2} + V(x)\\psi"
+        rawLatex: "i\\hbar \\frac{\\partial \\psi(x,t)}{\\partial t} = -\\frac{\\hbar^2}{2m} \\frac{\\partial^2 \\psi}{\\partial x^2} + V(x)\\psi",
+        formatted: "$$i\\hbar \\frac{\\partial \\psi(x,t)}{\\partial t} = -\\frac{\\hbar^2}{2m} \\frac{\\partial^2 \\psi}{\\partial x^2} + V(x)\\psi$$"
       },
       {
         spoken: "bra psi H-hat ket psi equals integral of psi star of x H-hat psi of x dx",
-        latex: "\\langle \\psi | \\hat{H} | \\psi \\rangle = \\int \\psi^*(x) \\hat{H} \\psi(x) \\, dx"
+        rawLatex: "\\langle \\psi | \\hat{H} | \\psi \\rangle = \\int \\psi^*(x) \\hat{H} \\psi(x) \\, dx",
+        formatted: "$$\\langle \\psi | \\hat{H} | \\psi \\rangle = \\int \\psi^*(x) \\hat{H} \\psi(x) \\, dx$$"
       },
       {
         spoken: "integral from minus infinity to plus infinity of e to the minus x squared dx equals square root of pi",
-        latex: "\\int_{-\\infty}^{\\infty} e^{-x^2} \\, dx = \\sqrt{\\pi}"
+        rawLatex: "\\int_{-\\infty}^{\\infty} e^{-x^2} \\, dx = \\sqrt{\\pi}",
+        formatted: "$$\\int_{-\\infty}^{\\infty} e^{-x^2} \\, dx = \\sqrt{\\pi}$$"
       }
     ];
 
-    let currentSampleIndex = 0;
+    let currentIndex = 0;
+    let autoPlay = true;
+    let animTimeout = null;
+    let typewriterInterval = null;
 
-    function renderMath(latex) {
-      const preview = document.getElementById("mathPreview");
-      const codeOutput = document.getElementById("latexOutput");
-      codeOutput.textContent = latex;
-
+    function renderKaTeX(latex) {
+      const box = document.getElementById("katexPreview");
       if (window.katex) {
         try {
-          katex.render(latex, preview, {
-            displayMode: true,
-            throwOnError: false
-          });
+          katex.render(latex, box, { displayMode: true, throwOnError: false });
         } catch (e) {
-          preview.textContent = latex;
+          box.textContent = latex;
         }
       } else {
-        preview.textContent = latex;
+        box.textContent = latex;
       }
     }
 
-    function loadSample(index) {
-      currentSampleIndex = index;
-      const pills = document.querySelectorAll(".preset-pill");
-      pills.forEach((p, idx) => {
-        p.classList.toggle("active", idx === index);
-      });
+    function runAnimation(index) {
+      clearTimeout(animTimeout);
+      clearInterval(typewriterInterval);
 
+      currentIndex = index;
       const sample = SAMPLES[index];
-      document.getElementById("spokenInput").value = sample.spoken;
-      renderMath(sample.latex);
-    }
 
-    function translateInput() {
-      const text = document.getElementById("spokenInput").value.trim().toLowerCase();
-      if (!text) {
-        renderMath("");
-        return;
-      }
-
-      // Check matching samples
-      for (const s of SAMPLES) {
-        if (text === s.spoken.toLowerCase()) {
-          renderMath(s.latex);
-          return;
-        }
-      }
-
-      // Simple heuristic client-side parser
-      let latex = text;
-      const greek = {
-        alpha: "\\alpha", beta: "\\beta", gamma: "\\gamma", delta: "\\delta",
-        lambda: "\\lambda", mu: "\\mu", nu: "\\nu", pi: "\\pi",
-        sigma: "\\sigma", theta: "\\theta", psi: "\\psi", omega: "\\omega"
-      };
-
-      for (const [k, v] of Object.entries(greek)) {
-        latex = latex.replace(new RegExp(`\\b${k}\\b`, "g"), v);
-      }
-
-      latex = latex
-        .replace(/squared/g, "^2")
-        .replace(/cubed/g, "^3")
-        .replace(/equals/g, "=")
-        .replace(/plus/g, "+")
-        .replace(/minus/g, "-")
-        .replace(/infinity/g, "\\infty")
-        .replace(/square root of ([a-zA-Z0-9\\]+)/g, "\\sqrt{$1}")
-        .replace(/fraction of ([a-zA-Z0-9\\]+) over ([a-zA-Z0-9\\]+)/g, "\\frac{$1}{$2}");
-
-      renderMath(latex);
-    }
-
-    function clearInput() {
-      document.getElementById("spokenInput").value = "";
-      renderMath("");
-    }
-
-    function copyLatex() {
-      const text = document.getElementById("latexOutput").textContent;
-      navigator.clipboard.writeText(`$$\n${text}\n$$`).then(() => {
-        const btn = document.getElementById("copyBtn");
-        btn.textContent = "Copied!";
-        setTimeout(() => { btn.textContent = "Copy"; }, 1500);
+      // Update active pill button
+      document.querySelectorAll(".preset-pill").forEach((pill, idx) => {
+        pill.classList.toggle("active", idx === index);
       });
+
+      const appStatus = document.getElementById("appStatus");
+      const audioWave = document.getElementById("audioWave");
+      const statusLabel = document.getElementById("statusLabel");
+      const transcriptEl = document.getElementById("transcriptText");
+      const katexPreview = document.getElementById("katexPreview");
+      const editorCode = document.getElementById("editorCode");
+      const targetLine = document.getElementById("targetLine");
+
+      // Reset states
+      transcriptEl.textContent = "";
+      katexPreview.style.opacity = "0.2";
+      katexPreview.textContent = "";
+      editorCode.textContent = "";
+      targetLine.classList.remove("pasted-flash");
+
+      // Step 1: Listening
+      appStatus.className = "app-status-badge status-listening";
+      audioWave.style.display = "inline-flex";
+      audioWave.classList.add("is-listening");
+      statusLabel.textContent = "Listening to Math...";
+
+      // Typewriter spoken words
+      const words = sample.spoken.split(" ");
+      let wordIdx = 0;
+
+      typewriterInterval = setInterval(() => {
+        if (wordIdx < words.length) {
+          transcriptEl.textContent += (wordIdx > 0 ? " " : "") + words[wordIdx];
+          wordIdx++;
+        } else {
+          clearInterval(typewriterInterval);
+
+          // Step 2: Compiling via Groq / LLM
+          audioWave.classList.remove("is-listening");
+          appStatus.className = "app-status-badge status-compiling";
+          statusLabel.textContent = "Compiling via Llama 3.1 (180ms)...";
+
+          animTimeout = setTimeout(() => {
+            // Step 3: Render LaTeX
+            renderKaTeX(sample.rawLatex);
+            katexPreview.style.opacity = "1";
+
+            // Step 4: Auto-Paste at cursor in target editor
+            appStatus.className = "app-status-badge status-pasted";
+            statusLabel.textContent = "Pasted at Cursor!";
+            audioWave.style.display = "none";
+
+            editorCode.textContent = sample.formatted;
+            targetLine.classList.add("pasted-flash");
+
+            // If auto-play enabled, advance after 4.5 seconds
+            if (autoPlay) {
+              animTimeout = setTimeout(() => {
+                nextPreset();
+              }, 4500);
+            }
+          }, 600);
+        }
+      }, 70);
     }
 
-    // Initialize on load
+    function selectPreset(idx) {
+      runAnimation(idx);
+    }
+
+    function nextPreset() {
+      const next = (currentIndex + 1) % SAMPLES.length;
+      runAnimation(next);
+    }
+
+    function replayCurrent() {
+      runAnimation(currentIndex);
+    }
+
+    function toggleAutoPlay() {
+      autoPlay = !autoPlay;
+      document.getElementById("playIcon").textContent = autoPlay ? "⏸" : "▶";
+      document.getElementById("autoPlayBtn").style.borderColor = autoPlay ? "var(--accent)" : "var(--border)";
+      if (autoPlay) {
+        nextPreset();
+      } else {
+        clearTimeout(animTimeout);
+      }
+    }
+
     window.addEventListener("DOMContentLoaded", () => {
-      loadSample(0);
+      // Small delay to ensure KaTeX is loaded
+      setTimeout(() => {
+        runAnimation(0);
+      }, 300);
     });
   </script>
 </body>
