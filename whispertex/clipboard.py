@@ -55,6 +55,15 @@ def auto_paste() -> bool:
             elif shutil.which("ydotool"):
                 subprocess.run(["ydotool", "key", "29:1", "47:1", "47:0", "29:0"], check=False)
                 return True
+        elif sys.platform == "win32":
+            import ctypes
+            user32 = ctypes.windll.user32
+            # VK_CONTROL = 0x11, 'V' = 0x56, KEYEVENTF_KEYUP = 0x0002
+            user32.keybd_event(0x11, 0, 0, 0)
+            user32.keybd_event(0x56, 0, 0, 0)
+            user32.keybd_event(0x56, 0, 2, 0)
+            user32.keybd_event(0x11, 0, 2, 0)
+            return True
     except Exception:
         pass
     return False
@@ -69,5 +78,18 @@ def notify_user(title: str, message: str) -> None:
             subprocess.run(["osascript", "-e", script], check=False, stderr=subprocess.DEVNULL)
         elif sys.platform.startswith("linux") and shutil.which("notify-send"):
             subprocess.run(["notify-send", title, message], check=False)
+        elif sys.platform == "win32":
+            safe_msg = message.replace('"', '`"').replace('\n', ' ')
+            safe_title = title.replace('"', '`"')
+            ps_script = f'''
+            [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
+            $template = [Windows.UI.Notifications.ToastNotificationManager]::GetTemplateContent([Windows.UI.Notifications.ToastTemplateType]::ToastText02)
+            $textNodes = $template.GetElementsByTagName("text")
+            $textNodes.Item(0).AppendChild($template.CreateTextNode("{safe_title}")) | Out-Null
+            $textNodes.Item(1).AppendChild($template.CreateTextNode("{safe_msg}")) | Out-Null
+            $toast = [Windows.UI.Notifications.ToastNotification]::new($template)
+            [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("WhisperTeX").Show($toast)
+            '''
+            subprocess.run(["powershell", "-NoProfile", "-Command", ps_script], check=False, stderr=subprocess.DEVNULL)
     except Exception:
         pass

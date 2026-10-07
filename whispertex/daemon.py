@@ -20,7 +20,8 @@ def run_hotkey_daemon(config: Dict[str, Any]) -> None:
         print("Please install it with: pip install pynput\n")
         sys.exit(1)
 
-    hotkey_str = config.get("hotkey", "<cmd>+<shift>+l")
+    default_hotkey = "<cmd>+<shift>+l" if sys.platform == "darwin" else "<ctrl>+<alt>+l"
+    hotkey_str = config.get("hotkey", default_hotkey)
     recorder = AudioRecorder()
     is_recording = False
 

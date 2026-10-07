@@ -1,13 +1,14 @@
 <div align="center">
 
-# 🎙️ WhisperTeX for Mac
+# 🎙️ WhisperTeX
 
 **Dictate standard mathematical English. WhisperTeX types clean, precision LaTeX wherever your cursor is blinking.**
 
-*A native macOS Menu Bar application + Python CLI.*
+*Available for macOS & Windows • Native Menu Bar & Background Hotkey Daemon*
 
 [![Website](https://img.shields.io/badge/Website-whispertex.dev-emerald?style=for-the-badge&logo=safari)](https://whispertex.dev)
-[![Download DMG](https://img.shields.io/badge/Download-macOS%20.dmg-blue?style=for-the-badge&logo=apple)](https://github.com/samerrahman/whispertex/releases/latest)
+[![Download Mac](https://img.shields.io/badge/Download-macOS%20.dmg-blue?style=for-the-badge&logo=apple)](https://github.com/samerrahman/whispertex/releases/latest/download/WhisperTeX-macos.dmg)
+[![Download Windows](https://img.shields.io/badge/Download-Windows%20.zip-0078D6?style=for-the-badge&logo=windows)](https://github.com/samerrahman/whispertex/releases/latest/download/WhisperTeX-windows-x64.zip)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 </div>
@@ -33,18 +34,27 @@ Because LLMs have mathematical context, things like Greek letters, differential 
 ## Installation
 
 ### macOS App (Menu bar + Window)
-1. Download [WhisperTeX-macos.dmg](https://github.com/samerrahman/whispertex/releases/latest/download/WhisperTeX-macos.dmg) (or the [.zip](https://github.com/samerrahman/whispertex/releases/latest/download/WhisperTeX-macos-arm64.zip)).
+1. Download [WhisperTeX-macos.dmg](https://github.com/samerrahman/whispertex/releases/latest/download/WhisperTeX-macos.dmg) (or [.zip](https://github.com/samerrahman/whispertex/releases/latest/download/WhisperTeX-macos-arm64.zip)).
 2. Drag `WhisperTeX.app` to `/Applications`.
 3. Open the app, paste a free [Groq](https://console.groq.com/keys) or OpenAI API key in Settings, and make sure Microphone & Accessibility permissions are enabled.
 4. Press `⌘+Shift+L` anywhere on your Mac to start/stop dictating. It copies and simulates `⌘+V` into your active editor (Overleaf, Notion, Google Docs, VS Code, Obsidian, etc.).
 
-### Python CLI
+### Windows (Portable Package)
+1. Download [WhisperTeX-windows-x64.zip](https://github.com/samerrahman/whispertex/releases/latest/download/WhisperTeX-windows-x64.zip) and extract it.
+2. Double-click `run_whispertex.bat`.
+3. Enter your free [Groq](https://console.groq.com/keys) or OpenAI API key when prompted.
+4. Press `Ctrl+Alt+L` anywhere on Windows to start/stop dictating and auto-paste LaTeX at your cursor.
+
+### Python CLI (macOS, Windows & Linux)
 ```bash
 pip install git+https://github.com/samerrahman/whispertex.git
-export GROQ_API_KEY="gsk_..."
+export GROQ_API_KEY="gsk_..."  # on Windows Command Prompt: set GROQ_API_KEY=gsk_...
 
 # Dictate directly from the terminal
 whispertex
+
+# Or run background global hotkey daemon
+whispertex daemon
 
 # Or convert text directly
 whispertex convert "integral from zero to infinity of x squared e to the minus x dx"
