@@ -15,6 +15,8 @@
 
 ---
 
+> **⚠️ Work in Progress**: This project is very much an early work in progress and may not be totally functional or stable across every setup. Expect bugs, quirks, and rough edges.
+
 ## What it does
 
 Instead of memorizing voice macros or typing out backslashes and brackets by hand, you speak the formula normally and an LLM converts it into LaTeX:
