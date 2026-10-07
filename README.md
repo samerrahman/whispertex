@@ -6,7 +6,7 @@
 
 *A native macOS Menu Bar application + Python CLI.*
 
-[![Website](https://img.shields.io/badge/Website-samerrahman.github.io%2Fwhispertex-emerald?style=for-the-badge&logo=safari)](https://samerrahman.github.io/whispertex/)
+[![Website](https://img.shields.io/badge/Website-whispertex.dev-emerald?style=for-the-badge&logo=safari)](https://whispertex.dev)
 [![Download DMG](https://img.shields.io/badge/Download-macOS%20.dmg-blue?style=for-the-badge&logo=apple)](https://github.com/samerrahman/whispertex/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux-lightgrey.svg)]()
@@ -14,7 +14,7 @@
 <br/>
 
 <p align="center">
-  <a href="https://samerrahman.github.io/whispertex/">🌐 Interactive Web Demo</a> •
+  <a href="https://whispertex.dev">🌐 Interactive Web Demo</a> •
   <a href="#-quickstart--download">Download & Install</a> •
   <a href="#-how-it-works">How It Works</a> •
   <a href="#-features">Features</a> •
