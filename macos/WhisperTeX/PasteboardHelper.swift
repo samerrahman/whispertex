@@ -11,7 +11,13 @@ class PasteboardHelper {
         pasteboard.setString(text, forType: .string)
     }
 
+    private var lastPasteTime: Date = Date.distantPast
+
     func autoPaste() {
+        let now = Date()
+        guard now.timeIntervalSince(lastPasteTime) > 0.6 else { return }
+        lastPasteTime = now
+
         // If WhisperTeX is the active frontmost app (e.g. user clicked "Paste at Cursor" in WhisperTeX),
         // hide WhisperTeX so focus immediately returns to their previous application (Overleaf, VS Code, Notes, etc.)
         let isWhisperTeXActive = NSApplication.shared.isActive
@@ -36,11 +42,9 @@ class PasteboardHelper {
         vKeyDown.flags = .maskCommand
         vKeyUp.flags = .maskCommand
 
-        // Post to both Session Event Tap and HID Event Tap for maximum application compatibility
+        // Post once to Session Event Tap
         vKeyDown.post(tap: .cgSessionEventTap)
         vKeyUp.post(tap: .cgSessionEventTap)
-        vKeyDown.post(tap: .cghidEventTap)
-        vKeyUp.post(tap: .cghidEventTap)
     }
 
     func notify(title: String, message: String) {
