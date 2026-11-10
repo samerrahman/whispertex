@@ -10,7 +10,10 @@ class AppViewModel: ObservableObject {
     @Published var formattedLatex: String = "$$\n\\int_{0}^{\\infty} x^2 e^{-x} \\, dx = 2\n$$"
     @Published var delimiter: MathDelimiter = .display
     @Published var provider: LLMProvider = .groq
-    @Published var autoPaste: Bool = true
+    // @AppStorage does not publish through ObservableObject, so announce changes to keep both toggles in sync
+    @AppStorage("auto_paste_enabled") var autoPaste: Bool = true {
+        willSet { objectWillChange.send() }
+    }
     @Published var copied: Bool = false
     @Published var showSettings: Bool = false
 

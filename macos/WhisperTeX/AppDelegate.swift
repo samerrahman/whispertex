@@ -1,6 +1,7 @@
 import Cocoa
 import SwiftUI
 import Carbon
+import UserNotifications
 
 @MainActor
 class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
@@ -21,6 +22,18 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
         // Register global hotkey: Cmd + Shift + L
         setupHotkey()
+
+        // Clear a Command key left latched by older builds (<= 0.2.4) so users recover without restarting.
+        // Re-checked on every activation in case Accessibility was granted (or a key was held) at launch.
+        PasteboardHelper.shared.releaseStaleModifiersIfNeeded()
+        NotificationCenter.default.addObserver(forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main) { _ in
+            MainActor.assumeIsolated { PasteboardHelper.shared.releaseStaleModifiersIfNeeded() }
+        }
+
+        // Needed for the "grant Accessibility" fallback notification; skipped when run unbundled (swift run)
+        if Bundle.main.bundleIdentifier != nil {
+            UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
+        }
 
         // Display the main standalone window on launch
         showMainWindow()
