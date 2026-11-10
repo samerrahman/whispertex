@@ -24,25 +24,19 @@ struct MainWindowView: View {
                             .font(.system(size: 22, weight: .bold, design: .serif))
                             .foregroundColor(.white)
                     }
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("WhisperTeX")
-                            .font(.system(size: 15, weight: .bold))
-                        Text("Speech to LaTeX for Mac")
-                            .font(.system(size: 11))
-                            .foregroundColor(.secondary)
-                    }
+                    Text("WhisperTeX")
+                        .font(.system(size: 15, weight: .bold))
                 }
 
                 Spacer()
 
                 // Tabs Picker
                 Picker("", selection: $selectedTab) {
-                    Text("🎙️ Dictate & Preview").tag(0)
-                    Text("🔒 Permissions & Setup").tag(1)
-                    Text("📖 Math Voice Guide").tag(2)
+                    Text("Dictate").tag(0)
+                    Text("Setup").tag(1)
                 }
                 .pickerStyle(.segmented)
-                .frame(width: 420)
+                .frame(width: 200)
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 14)
@@ -54,10 +48,8 @@ struct MainWindowView: View {
             Group {
                 if selectedTab == 0 {
                     dictationTab
-                } else if selectedTab == 1 {
-                    permissionsTab
                 } else {
-                    guideTab
+                    permissionsTab
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -109,7 +101,7 @@ struct MainWindowView: View {
         }
     }
 
-    // MARK: - Tab 1: Dictate & Preview
+    // MARK: - Tab 1: Dictate
     private var dictationTab: some View {
         ScrollView {
             VStack(spacing: 18) {
@@ -128,7 +120,7 @@ struct MainWindowView: View {
                             } else {
                                 Image(systemName: "mic.fill")
                                     .font(.system(size: 14, weight: .bold))
-                                Text("Start Recording Math")
+                                Text("Start Recording")
                                     .font(.system(size: 14, weight: .bold))
                             }
                         }
@@ -141,14 +133,6 @@ struct MainWindowView: View {
                         )
                     }
                     .buttonStyle(.plain)
-
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(viewModel.state == .recording ? "Listening... Speak your mathematical equation clearly" : "Click button or press ⌘+Shift+L anywhere on macOS")
-                            .font(.system(size: 13, weight: .semibold))
-                        Text(viewModel.state == .recording ? "Tap again when finished to compile into LaTeX" : "Dictate standard English (e.g. 'fraction of 1 over square root of 2 pi')")
-                            .font(.system(size: 11))
-                            .foregroundColor(.secondary)
-                    }
 
                     Spacer()
 
@@ -167,10 +151,10 @@ struct MainWindowView: View {
                 .background(Color(NSColor.controlBackgroundColor))
                 .cornerRadius(10)
 
-                // Panel 1: What WhisperTeX Heard (Spoken Words)
+                // Panel 1: Recognized speech
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
-                        Label("What WhisperTeX Heard (Recognized Speech)", systemImage: "waveform.and.mic")
+                        Label("Heard", systemImage: "waveform.and.mic")
                             .font(.system(size: 13, weight: .bold))
                             .foregroundColor(.primary)
 
@@ -196,10 +180,6 @@ struct MainWindowView: View {
                             RoundedRectangle(cornerRadius: 6)
                                 .stroke(Color.secondary.opacity(0.2), lineWidth: 1)
                         )
-
-                    Text("Tip: You can edit what it heard above at any time and click 'Recompile to LaTeX'.")
-                        .font(.system(size: 10))
-                        .foregroundColor(.secondary)
                 }
                 .padding(14)
                 .background(Color(NSColor.controlBackgroundColor))
@@ -208,7 +188,7 @@ struct MainWindowView: View {
                 // Panel 2: Live KaTeX Typeset Preview
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
-                        Label("Rendered LaTeX Formula Preview", systemImage: "function")
+                        Label("Preview", systemImage: "function")
                             .font(.system(size: 13, weight: .bold))
 
                         Spacer()
@@ -262,13 +242,13 @@ struct MainWindowView: View {
         }
     }
 
-    // MARK: - Tab 2: Permissions & System Setup
+    // MARK: - Tab 2: Setup
     private var permissionsTab: some View {
         ScrollView {
             VStack(spacing: 20) {
                 // Section 1: System Permissions Diagnostics
                 VStack(alignment: .leading, spacing: 14) {
-                    Text("macOS System Permissions")
+                    Text("Permissions")
                         .font(.system(size: 14, weight: .bold))
 
                     // 1. Microphone Permission
@@ -279,16 +259,13 @@ struct MainWindowView: View {
 
                         VStack(alignment: .leading, spacing: 4) {
                             HStack {
-                                Text("Microphone Access")
+                                Text("Microphone")
                                     .font(.system(size: 13, weight: .semibold))
                                 statusBadge(
                                     text: permissions.microphoneStatus == .authorized ? "Granted" : (permissions.microphoneStatus == .denied ? "Denied" : "Not Requested"),
                                     color: permissions.microphoneStatus == .authorized ? .green : .red
                                 )
                             }
-                            Text("Allows WhisperTeX to record your spoken mathematics equations via your input microphone.")
-                                .font(.system(size: 11))
-                                .foregroundColor(.secondary)
 
                             HStack(spacing: 10) {
                                 if permissions.microphoneStatus != .authorized {
@@ -297,12 +274,12 @@ struct MainWindowView: View {
                                     }
                                     .buttonStyle(.borderedProminent)
                                 }
-                                Button("Open System Microphone Settings") {
+                                Button("Open Microphone Settings") {
                                     permissions.openMicrophoneSettings()
                                 }
                                 .buttonStyle(.bordered)
 
-                                Button(permissions.isTestingMicrophone ? "Recording 2s..." : "Test Microphone Sample") {
+                                Button(permissions.isTestingMicrophone ? "Recording 2s..." : "Test Microphone") {
                                     permissions.testMicrophone()
                                 }
                                 .buttonStyle(.bordered)
@@ -338,9 +315,6 @@ struct MainWindowView: View {
                                     color: permissions.isAccessibilityGranted ? .green : .orange
                                 )
                             }
-                            Text("Allows WhisperTeX to simulate Cmd+V so that compiled equations appear directly wherever your cursor is blinking across apps like Overleaf, VS Code, Google Docs, Notion, Notes, etc.")
-                                .font(.system(size: 11))
-                                .foregroundColor(.secondary)
 
                             if !permissions.isAccessibilityGranted {
                                 VStack(alignment: .leading, spacing: 8) {
@@ -425,7 +399,7 @@ struct MainWindowView: View {
                     Text("AI Providers & API Keys")
                         .font(.system(size: 14, weight: .bold))
 
-                    Picker("Active Transcription & LLM Engine:", selection: $viewModel.provider) {
+                    Picker("Provider:", selection: $viewModel.provider) {
                         ForEach(LLMProvider.allCases) { p in
                             Text(p.label).tag(p)
                         }
@@ -436,7 +410,7 @@ struct MainWindowView: View {
                     // Groq API Key
                     VStack(alignment: .leading, spacing: 6) {
                         HStack {
-                            Text("Groq API Key (Recommended - Whisper Large v3 <300ms)")
+                            Text("Groq API Key (recommended)")
                                 .font(.system(size: 12, weight: .semibold))
                             Spacer()
                             Button("Get Free Groq Key ↗") {
@@ -492,7 +466,7 @@ struct MainWindowView: View {
                     // OpenAI API Key
                     VStack(alignment: .leading, spacing: 6) {
                         HStack {
-                            Text("OpenAI API Key (Whisper-1 & GPT-4o-mini)")
+                            Text("OpenAI API Key")
                                 .font(.system(size: 12, weight: .semibold))
                             Spacer()
                             Button("Get OpenAI Key ↗") {
@@ -548,69 +522,6 @@ struct MainWindowView: View {
                 .padding(16)
                 .background(Color(NSColor.controlBackgroundColor))
                 .cornerRadius(10)
-            }
-            .padding(18)
-        }
-    }
-
-    // MARK: - Tab 3: Math Voice Guide
-    private var guideTab: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("How to Dictate Advanced Mathematics")
-                        .font(.system(size: 15, weight: .bold))
-                    Text("You do not need to memorize LaTeX codes. Speak natural mathematical English and WhisperTeX resolves Greek letters, differential operators, indices, and fractions.")
-                        .font(.system(size: 12))
-                        .foregroundColor(.secondary)
-                }
-
-                ForEach(SAMPLE_PRESETS) { preset in
-                    VStack(alignment: .leading, spacing: 8) {
-                        HStack {
-                            Text(preset.title)
-                                .font(.system(size: 13, weight: .bold))
-                            Spacer()
-                            Text(preset.category)
-                                .font(.system(size: 10, weight: .semibold))
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(Color.accentColor.opacity(0.12))
-                                .cornerRadius(4)
-
-                            Button("Load & Test") {
-                                viewModel.loadPreset(preset)
-                                selectedTab = 0
-                            }
-                            .buttonStyle(.bordered)
-                            .font(.system(size: 11))
-                        }
-
-                        HStack(alignment: .top, spacing: 12) {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Spoken English:")
-                                    .font(.system(size: 10, weight: .semibold))
-                                    .foregroundColor(.secondary)
-                                Text("“\(preset.spoken)”")
-                                    .font(.system(size: 12, design: .serif))
-                                    .italic()
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Expected Output:")
-                                    .font(.system(size: 10, weight: .semibold))
-                                    .foregroundColor(.secondary)
-                                Text("$\(preset.expected)$")
-                                    .font(.system(size: 12, design: .monospaced))
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                    }
-                    .padding(12)
-                    .background(Color(NSColor.controlBackgroundColor))
-                    .cornerRadius(8)
-                }
             }
             .padding(18)
         }

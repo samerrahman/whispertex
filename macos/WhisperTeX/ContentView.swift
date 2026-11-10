@@ -56,7 +56,7 @@ struct ContentView: View {
             if viewModel.showSettings {
                 // Settings view
                 VStack(alignment: .leading, spacing: 10) {
-                    Text("Settings & API Keys")
+                    Text("Settings")
                         .font(.system(size: 12, weight: .bold))
 
                     Picker("Provider", selection: $viewModel.provider) {
